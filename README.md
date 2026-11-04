@@ -13,23 +13,28 @@ Desafio técnico: CRUD de **Livro**, **Autor** e **Assunto** com relatório agru
 | Interatividade | Symfony UX Live Component                        | **Somente** onde houver ganho real                                      |
 | Relatório      | Dompdf (PDF) sobre a view `vw_livros_por_autor`  | Equivalente PHP ao Crystal/ReportViewer                                 |
 | Testes         | PHPUnit 13                                       | TDD: unitários (service, DTO) e funcionais (controllers)                |
-| Infra          | Docker Compose (php-fpm, nginx, postgres, node)  | `docker compose up` e pronto                                            |
+| Infra          | Docker Compose (php-fpm, nginx, postgres, node)  | Sobe em etapas: PHP e banco, Composer, permissão do cache, depois o Node |
 
 ## Como subir
 
 ```bash
-docker compose up -d --build
+docker compose up -d --build db php nginx
 docker compose exec php composer install
+docker compose exec php sh -c 'mkdir -p var/cache var/log && chmod -R 777 var'
+docker compose up -d node
 docker compose exec php bin/console doctrine:migrations:migrate -n
 # app: http://localhost:8080
 ```
 
+O Node sobe por último porque o `package.json` aponta para `vendor/symfony/ux-live-component`, que só existe depois do `composer install`. O `chmod` é necessário porque o Composer cria `var/cache` como root e o PHP-FPM não consegue gravar nele. Sem rota cadastrada, essa URL responde 404 do Symfony.
+
 ## Como testar
 
 ```bash
-docker compose exec php composer test          # tudo
-docker compose exec php composer test:unit     # só unitários (sem banco)
+docker compose exec php composer test:unit     # unitários, sem banco
 ```
+
+`composer test` inclui `tests/Functional`, pasta que ainda não existe, e o PHPUnit está com `failOnWarning`. Esse comando passa a valer quando a suíte funcional existir.
 
 ## Modelo de dados
 
