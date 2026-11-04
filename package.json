@@ -1,0 +1,19 @@
+{
+    "name": "cadastro-livros-front",
+    "private": true,
+    "scripts": {
+        "dev": "encore dev",
+        "watch": "encore dev --watch",
+        "build": "encore production"
+    },
+    "dependencies": {
+        "@hotwired/stimulus": "^3.2",
+        "bootstrap": "^5.3"
+    },
+    "devDependencies": {
+        "@symfony/ux-live-component": "file:vendor/symfony/ux-live-component/assets",
+        "@symfony/webpack-encore": "^5.0",
+        "ts-loader": "^9.5",
+        "typescript": "^5.6"
+    }
+}

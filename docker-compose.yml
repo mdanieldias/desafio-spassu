@@ -1,0 +1,53 @@
+services:
+  php:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    container_name: livros_php
+    working_dir: /var/www/html
+    volumes:
+      - .:/var/www/html
+    environment:
+      DATABASE_URL: "postgresql://app:app@db:5432/livros?serverVersion=16&charset=utf8"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: livros_nginx
+    ports:
+      - "8080:80"
+    volumes:
+      - .:/var/www/html:ro
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - php
+
+  db:
+    image: postgres:16-alpine
+    container_name: livros_db
+    environment:
+      POSTGRES_DB: livros
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: app
+    ports:
+      - "5433:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U app -d livros"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  node:
+    image: node:22-alpine
+    container_name: livros_node
+    working_dir: /var/www/html
+    volumes:
+      - .:/var/www/html
+    command: sh -c "npm install && npm run watch"
+
+volumes:
+  db_data:
