@@ -1,0 +1,39 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Autores{% endblock %}
+
+{% block body %}
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h3 mb-0">Autores</h1>
+        <a class="btn btn-primary" href="{{ path('autor_novo') }}">Novo autor</a>
+    </div>
+
+    {% if autores is empty %}
+        <p class="text-secondary mb-0">Nenhum autor cadastrado.</p>
+    {% else %}
+        <div class="table-responsive">
+            <table class="table table-striped align-middle">
+                <thead>
+                    <tr>
+                        <th scope="col">Nome</th>
+                        <th scope="col" class="text-end">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for autor in autores %}
+                        <tr>
+                            <td>{{ autor.nome }}</td>
+                            <td class="text-end">
+                                <a class="btn btn-sm btn-outline-secondary" href="{{ path('autor_editar', {id: autor.id}) }}">Editar</a>
+                                <form class="d-inline" method="post" action="{{ path('autor_excluir', {id: autor.id}) }}" onsubmit="return confirm('Excluir este autor?');">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('autor_excluir') }}">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">Excluir</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+{% endblock %}
