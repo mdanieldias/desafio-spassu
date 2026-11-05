@@ -36,8 +36,12 @@ final class LivroType extends AbstractType
             ])
             ->add('valor', TextType::class, [
                 'label' => 'Valor (R$)',
-                'help' => 'Use ponto para os centavos, por exemplo 49.90.',
-                'attr' => ['inputmode' => 'decimal'],
+                'attr' => [
+                    'data-controller' => 'mascara-moeda',
+                    'data-action'     => 'input->mascara-moeda#mascarar',
+                    'inputmode'       => 'numeric',
+                    'placeholder'     => '0,00',
+                ],
             ])
             ->add('autores', EntityType::class, [
                 'class' => Autor::class,

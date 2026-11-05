@@ -17,6 +17,14 @@ final class LivroDtoTest extends TestCase
         self::assertCount(0, $this->validar($this->dtoValido()));
     }
 
+    public function testAnoAtualEAceito(): void
+    {
+        $dto = $this->dtoValido();
+        $dto->anoPublicacao = date('Y');
+
+        self::assertCount(0, $this->validar($dto));
+    }
+
     /** @param callable(LivroDto): void $mutacao */
     #[DataProvider('casosInvalidos')]
     public function testCamposInvalidosGeramViolacao(string $campo, callable $mutacao): void
@@ -41,6 +49,7 @@ final class LivroDtoTest extends TestCase
         yield 'edição zero' => ['edicao', static fn (LivroDto $d) => $d->edicao = 0];
         yield 'ano com 3 dígitos' => ['anoPublicacao', static fn (LivroDto $d) => $d->anoPublicacao = '202'];
         yield 'ano com letras' => ['anoPublicacao', static fn (LivroDto $d) => $d->anoPublicacao = 'abcd'];
+        yield 'ano maior que o atual' => ['anoPublicacao', static fn (LivroDto $d) => $d->anoPublicacao = (string) ((int) date('Y') + 1)];
         yield 'valor negativo' => ['valor', static fn (LivroDto $d) => $d->valor = '-1.00'];
         yield 'valor com 3 casas' => ['valor', static fn (LivroDto $d) => $d->valor = '10.999'];
         yield 'sem autores' => ['autores', static fn (LivroDto $d) => $d->autores = []];

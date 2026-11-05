@@ -8,6 +8,7 @@ use App\Entity\Assunto;
 use App\Entity\Autor;
 use App\Entity\Livro;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 /**
  * Objeto de transferência entre formulário/controller e service.
@@ -43,6 +44,22 @@ final class LivroDto
 
     /** @var list<Assunto> */
     public array $assuntos = [];
+
+    #[Assert\Callback]
+    public function validarAnoPublicacao(ExecutionContextInterface $context): void
+    {
+        if (!is_string($this->anoPublicacao) || !preg_match('/^\d{4}$/', $this->anoPublicacao)) {
+            return;
+        }
+
+        $anoAtual = (int) date('Y');
+        if ((int) $this->anoPublicacao > $anoAtual) {
+            $context->buildViolation('O ano de publicação não pode ser maior que {{ limit }}.')
+                ->setParameter('{{ limit }}', (string) $anoAtual)
+                ->atPath('anoPublicacao')
+                ->addViolation();
+        }
+    }
 
     public static function deLivro(Livro $livro): self
     {
