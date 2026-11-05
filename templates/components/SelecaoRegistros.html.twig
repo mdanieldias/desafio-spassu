@@ -1,0 +1,59 @@
+<div {{ attributes }} class="mb-3">
+    <input type="hidden" name="{{ campo }}" value="">
+
+    <label class="form-label">
+        {{ rotulo }}{% if obrigatorio %} <span class="text-danger">*</span>{% endif %}
+    </label>
+
+    {% set escolhidos = this.escolhidos() %}
+    {% set disponiveis = this.disponiveis() %}
+
+    {% if escolhidos is empty %}
+        <p class="text-secondary">Nenhum {{ tipo == 'autor' ? 'autor' : 'assunto' }} selecionado.</p>
+    {% else %}
+        <ul class="list-group mb-2">
+            {% for registro in escolhidos %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>{{ tipo == 'autor' ? registro.nome : registro.descricao }}</span>
+                    <button
+                        type="button"
+                        class="btn btn-sm btn-outline-danger"
+                        data-action="live#action"
+                        data-live-action-param="remover"
+                        data-live-id-param="{{ registro.id }}"
+                    >Remover</button>
+                    <input type="hidden" name="{{ campo }}" value="{{ registro.id }}">
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    {% if disponiveis is empty %}
+        <p class="form-text">
+            {% if tipo == 'autor' %}
+                Não há outros autores.
+                <a href="{{ path('autor_novo') }}">Cadastrar autor</a>
+            {% else %}
+                Não há outros assuntos.
+                <a href="{{ path('assunto_novo') }}">Cadastrar assunto</a>
+            {% endif %}
+        </p>
+    {% else %}
+        <div class="input-group">
+            <select class="form-select" data-model="norender|proximoId" aria-label="{{ rotulo }}">
+                <option value="">Selecione</option>
+                {% for registro in disponiveis %}
+                    <option value="{{ registro.id }}">{{ tipo == 'autor' ? registro.nome : registro.descricao }}</option>
+                {% endfor %}
+            </select>
+            <button type="button" class="btn btn-outline-primary" data-action="live#action" data-live-action-param="adicionar">Adicionar</button>
+        </div>
+        <p class="form-text mb-0">
+            {% if tipo == 'autor' %}
+                <a href="{{ path('autor_novo') }}">Cadastrar autor</a>
+            {% else %}
+                <a href="{{ path('assunto_novo') }}">Cadastrar assunto</a>
+            {% endif %}
+        </p>
+    {% endif %}
+</div>

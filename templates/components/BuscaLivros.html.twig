@@ -1,0 +1,57 @@
+<div {{ attributes }} class="mb-3">
+    <div class="mb-3">
+        <label class="form-label" for="busca-livros">Buscar</label>
+        <input
+            id="busca-livros"
+            type="search"
+            class="form-control"
+            placeholder="Título ou editora"
+            data-model="debounce(300)|termo"
+            value="{{ termo }}"
+        >
+    </div>
+
+    {% set encontrados = this.livros() %}
+    {% if encontrados is empty %}
+        <p class="text-secondary mb-0">
+            {{ termo is empty ? 'Nenhum livro cadastrado.' : 'Nenhum livro encontrado.' }}
+        </p>
+    {% else %}
+        <div class="table-responsive">
+            <table class="table table-striped align-middle">
+                <thead>
+                    <tr>
+                        <th scope="col">Título</th>
+                        <th scope="col">Editora</th>
+                        <th scope="col">Edição</th>
+                        <th scope="col">Ano</th>
+                        <th scope="col" class="text-end">Valor</th>
+                        <th scope="col">Autores</th>
+                        <th scope="col">Assuntos</th>
+                        <th scope="col" class="text-end">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for livro in encontrados %}
+                        <tr>
+                            <td>{{ livro.titulo }}</td>
+                            <td>{{ livro.editora }}</td>
+                            <td>{{ livro.edicao }}</td>
+                            <td>{{ livro.anoPublicacao }}</td>
+                            <td class="text-end">R$ {{ livro.valor|number_format(2, ',', '.') }}</td>
+                            <td>{{ livro.autores|map(autor => autor.nome)|join(', ') }}</td>
+                            <td>{{ livro.assuntos is empty ? '—' : livro.assuntos|map(assunto => assunto.descricao)|join(', ') }}</td>
+                            <td class="text-end text-nowrap">
+                                <a class="btn btn-sm btn-outline-secondary" href="{{ path('livro_editar', {id: livro.id}) }}">Editar</a>
+                                <form class="d-inline" method="post" action="{{ path('livro_excluir', {id: livro.id}) }}" onsubmit="return confirm('Excluir este livro?');">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('livro_excluir') }}">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">Excluir</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+</div>

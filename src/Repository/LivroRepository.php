@@ -16,6 +16,17 @@ class LivroRepository extends ServiceEntityRepository
         parent::__construct($registry, Livro::class);
     }
 
+    public function buscarDuplicado(string $titulo, string $editora, int $edicao): ?Livro
+    {
+        $livro = $this->findOneBy([
+            'titulo' => $titulo,
+            'editora' => $editora,
+            'edicao' => $edicao,
+        ]);
+
+        return $livro instanceof Livro ? $livro : null;
+    }
+
     /** @return list<Livro> */
     public function buscarPorTermo(?string $termo): array
     {

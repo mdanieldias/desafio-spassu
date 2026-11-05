@@ -15,12 +15,6 @@ use Symfony\Component\Routing\Attribute\Route;
 
 final class AutorController extends AbstractController
 {
-    #[Route('/', name: 'home', methods: ['GET'])]
-    public function home(): Response
-    {
-        return $this->redirectToRoute('autor_index');
-    }
-
     #[Route('/autores', name: 'autor_index', methods: ['GET'])]
     public function index(AutorService $autores): Response
     {

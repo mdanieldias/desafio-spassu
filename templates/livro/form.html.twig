@@ -1,0 +1,51 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ titulo }}{% endblock %}
+
+{% block body %}
+    <h1 class="h3 mb-3">{{ titulo }}</h1>
+
+    {% set idsAutores = [] %}
+    {% for autor in form.autores.vars.data|default([]) %}
+        {% set idsAutores = idsAutores|merge([autor.id]) %}
+    {% endfor %}
+
+    {% set idsAssuntos = [] %}
+    {% for assunto in form.assuntos.vars.data|default([]) %}
+        {% set idsAssuntos = idsAssuntos|merge([assunto.id]) %}
+    {% endfor %}
+
+    {{ form_start(form) }}
+        {{ form_row(form.titulo) }}
+        {{ form_row(form.editora) }}
+        <div class="row">
+            <div class="col-md-4">{{ form_row(form.edicao) }}</div>
+            <div class="col-md-4">{{ form_row(form.anoPublicacao) }}</div>
+            <div class="col-md-4">{{ form_row(form.valor) }}</div>
+        </div>
+
+        {{ component('SelecaoRegistros', {
+            tipo: 'autor',
+            campo: form.autores.vars.full_name,
+            rotulo: 'Autores',
+            obrigatorio: true,
+            selecionados: idsAutores,
+        }) }}
+        {{ form_errors(form.autores) }}
+        {% do form.autores.setRendered %}
+
+        {{ component('SelecaoRegistros', {
+            tipo: 'assunto',
+            campo: form.assuntos.vars.full_name,
+            rotulo: 'Assuntos',
+            selecionados: idsAssuntos,
+        }) }}
+        {{ form_errors(form.assuntos) }}
+        {% do form.assuntos.setRendered %}
+
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary">Salvar</button>
+            <a class="btn btn-outline-secondary" href="{{ path('livro_index') }}">Cancelar</a>
+        </div>
+    {{ form_end(form) }}
+{% endblock %}

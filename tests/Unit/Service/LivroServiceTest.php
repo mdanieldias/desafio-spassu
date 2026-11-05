@@ -9,6 +9,7 @@ use App\Entity\Autor;
 use App\Entity\Livro;
 use App\Exception\RegistroDuplicadoException;
 use App\Exception\RegistroNaoEncontradoException;
+use App\Repository\LivroRepository;
 use App\Service\LivroService;
 use Doctrine\DBAL\Driver\Exception as DriverException;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
@@ -19,12 +20,14 @@ use PHPUnit\Framework\TestCase;
 final class LivroServiceTest extends TestCase
 {
     private EntityManagerInterface&MockObject $em;
+    private LivroRepository&MockObject $livros;
     private LivroService $service;
 
     protected function setUp(): void
     {
         $this->em = $this->createMock(EntityManagerInterface::class);
-        $this->service = new LivroService($this->em);
+        $this->livros = $this->createMock(LivroRepository::class);
+        $this->service = new LivroService($this->em, $this->livros);
     }
 
     public function testCriarPersisteELivroComOsDadosDoDto(): void
@@ -32,6 +35,7 @@ final class LivroServiceTest extends TestCase
         $autor = new Autor('Machado de Assis');
         $dto = $this->dtoValido([$autor]);
 
+        $this->livros->expects(self::once())->method('buscarDuplicado')->willReturn(null);
         $this->em->expects(self::once())->method('persist')->with(self::isInstanceOf(Livro::class));
         $this->em->expects(self::once())->method('flush');
 
@@ -49,6 +53,7 @@ final class LivroServiceTest extends TestCase
     public function testCriarNaoDuplicaAutorRepetidoNoDto(): void
     {
         $autor = new Autor('Machado de Assis');
+        $this->livros->expects(self::once())->method('buscarDuplicado')->willReturn(null);
         $this->em->expects(self::once())->method('persist');
         $this->em->expects(self::once())->method('flush');
 
@@ -59,6 +64,7 @@ final class LivroServiceTest extends TestCase
 
     public function testCriarTraduzViolacaoDeUnicidadeEmExcecaoDeDominio(): void
     {
+        $this->livros->expects(self::once())->method('buscarDuplicado')->willReturn(null);
         $this->em->expects(self::once())->method('flush')->willThrowException(
             new UniqueConstraintViolationException(new FakeDriverException('duplicate key'), null),
         );
@@ -69,8 +75,22 @@ final class LivroServiceTest extends TestCase
         $this->service->criar($this->dtoValido([new Autor('Machado de Assis')]));
     }
 
+    public function testCriarRecusaTituloEditoraEEdicaoRepetidos(): void
+    {
+        $existente = new Livro('Dom Casmurro', 'Garnier', 1, '1899', '49.90');
+        (new \ReflectionProperty(Livro::class, 'id'))->setValue($existente, 9);
+        $this->livros->expects(self::once())->method('buscarDuplicado')->willReturn($existente);
+        $this->em->expects(self::never())->method('persist');
+
+        $this->expectException(RegistroDuplicadoException::class);
+        $this->expectExceptionMessage('Dom Casmurro');
+
+        $this->service->criar($this->dtoValido([new Autor('Machado de Assis')]));
+    }
+
     public function testCriarFalhaQuandoDtoNaoFoiValidado(): void
     {
+        $this->livros->expects(self::never())->method('buscarDuplicado');
         $this->em->expects(self::never())->method('persist');
         $this->expectException(\InvalidArgumentException::class);
 
@@ -80,7 +100,9 @@ final class LivroServiceTest extends TestCase
     public function testAtualizarAlteraOsDadosDoLivroExistente(): void
     {
         $livro = new Livro('Antigo', 'Editora X', 1, '2000', '10.00');
+        (new \ReflectionProperty(Livro::class, 'id'))->setValue($livro, 7);
         $this->em->expects(self::once())->method('find')->with(Livro::class, 7)->willReturn($livro);
+        $this->livros->expects(self::once())->method('buscarDuplicado')->willReturn(null);
         $this->em->expects(self::once())->method('flush');
 
         $resultado = $this->service->atualizar(7, $this->dtoValido([new Autor('Machado de Assis')]));
@@ -90,8 +112,38 @@ final class LivroServiceTest extends TestCase
         self::assertSame('49.90', $livro->getValor());
     }
 
+    public function testAtualizarRecusaChaveDeOutroLivro(): void
+    {
+        $livro = new Livro('Antigo', 'Editora X', 1, '2000', '10.00');
+        (new \ReflectionProperty(Livro::class, 'id'))->setValue($livro, 7);
+        $outro = new Livro('Dom Casmurro', 'Garnier', 1, '1899', '49.90');
+        (new \ReflectionProperty(Livro::class, 'id'))->setValue($outro, 9);
+
+        $this->em->expects(self::once())->method('find')->willReturn($livro);
+        $this->livros->expects(self::once())->method('buscarDuplicado')->willReturn($outro);
+        $this->em->expects(self::never())->method('flush');
+
+        $this->expectException(RegistroDuplicadoException::class);
+
+        $this->service->atualizar(7, $this->dtoValido([new Autor('Machado de Assis')]));
+    }
+
+    public function testAtualizarPermiteManterAPropriaChave(): void
+    {
+        $livro = new Livro('Dom Casmurro', 'Garnier', 1, '1899', '10.00');
+        (new \ReflectionProperty(Livro::class, 'id'))->setValue($livro, 7);
+        $this->em->expects(self::once())->method('find')->willReturn($livro);
+        $this->livros->expects(self::once())->method('buscarDuplicado')->willReturn($livro);
+        $this->em->expects(self::once())->method('flush');
+
+        $resultado = $this->service->atualizar(7, $this->dtoValido([new Autor('Machado de Assis')]));
+
+        self::assertSame('49.90', $resultado->getValor());
+    }
+
     public function testAtualizarLivroInexistenteLancaNaoEncontrado(): void
     {
+        $this->livros->expects(self::never())->method('buscarDuplicado');
         $this->em->expects(self::once())->method('find')->willReturn(null);
 
         $this->expectException(RegistroNaoEncontradoException::class);
@@ -99,9 +151,18 @@ final class LivroServiceTest extends TestCase
         $this->service->atualizar(999, $this->dtoValido([new Autor('X')]));
     }
 
+    public function testListarDelegaABuscaDoRepositorio(): void
+    {
+        $this->em->expects(self::never())->method('flush');
+        $this->livros->expects(self::once())->method('buscarPorTermo')->with('dom')->willReturn([]);
+
+        self::assertSame([], $this->service->listar('dom'));
+    }
+
     public function testExcluirRemoveOLivro(): void
     {
         $livro = new Livro('Dom Casmurro', 'Garnier', 1, '1899', '49.90');
+        $this->livros->expects(self::never())->method('buscarDuplicado');
         $this->em->method('find')->willReturn($livro);
 
         $this->em->expects(self::once())->method('remove')->with($livro);
@@ -112,6 +173,7 @@ final class LivroServiceTest extends TestCase
 
     public function testExcluirLivroInexistenteLancaNaoEncontrado(): void
     {
+        $this->livros->expects(self::never())->method('buscarDuplicado');
         $this->em->method('find')->willReturn(null);
         $this->em->expects(self::never())->method('remove');
 
