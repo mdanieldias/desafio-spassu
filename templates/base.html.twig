@@ -32,35 +32,43 @@
             <symbol id="chevron-left" viewBox="0 0 16 16" fill="currentColor">
                 <path fill="currentColor" fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/>
             </symbol>
+            <symbol id="list" viewBox="0 0 16 16" fill="currentColor">
+                <path fill="currentColor" fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5"/>
+            </symbol>
+            <symbol id="x" viewBox="0 0 16 16" fill="currentColor">
+                <path fill="currentColor" d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/>
+            </symbol>
         </svg>
 
         {% set rota = app.request.attributes.get('_route') %}
         <div class="d-flex flex-column flex-md-row min-vh-100">
-            <aside class="sidebar d-flex flex-column flex-shrink-0 p-3 text-bg-dark" data-controller="sidebar">
-                <div class="sidebar-header d-flex align-items-center mb-3">
+            <aside class="sidebar d-flex flex-column flex-shrink-0 px-3 py-2 p-md-3 text-bg-dark" data-controller="sidebar">
+                <div class="sidebar-header d-flex align-items-center mb-md-3">
                     <a href="{{ path('livro_index') }}" class="sidebar-brand d-flex align-items-center me-auto text-white text-decoration-none" data-sidebar-tooltip data-bs-title="Livraria">
                         <svg class="bi pe-none me-2" width="32" height="32" fill="currentColor"><use href="#book"/></svg>
                         <span class="sidebar-label fs-4">Livraria</span>
                     </a>
-                    <button type="button" class="sidebar-toggle btn btn-sm text-white" data-action="sidebar#toggle" data-sidebar-tooltip data-bs-title="Expandir menu" aria-expanded="true" aria-label="Recolher menu">
+                    <button type="button" class="sidebar-toggle btn btn-sm text-white" data-action="sidebar#toggle" data-sidebar-tooltip data-bs-title="Expandir menu" aria-expanded="true" aria-controls="menu-principal" aria-label="Recolher menu">
                         <svg class="sidebar-chevron bi pe-none" width="16" height="16" fill="currentColor"><use href="#chevron-left"/></svg>
+                        <svg class="sidebar-burger bi pe-none" width="24" height="24" fill="currentColor"><use href="#list"/></svg>
+                        <svg class="sidebar-close bi pe-none" width="24" height="24" fill="currentColor"><use href="#x"/></svg>
                     </button>
                 </div>
                 <hr class="sidebar-divider">
-                <ul class="nav nav-pills nav-flush flex-column mb-auto">
+                <ul id="menu-principal" class="nav nav-pills nav-flush flex-column mb-auto">
                     <li class="nav-item">
                         <a href="{{ path('livro_index') }}" class="nav-link {{ rota starts with 'livro' or rota == 'home' ? 'active' : 'text-white' }}" data-sidebar-tooltip data-bs-title="Livros" {% if rota starts with 'livro' or rota == 'home' %}aria-current="page"{% endif %}>
                             <svg class="bi pe-none me-2" width="16" height="16" fill="currentColor"><use href="#book"/></svg>
                             <span class="sidebar-label">Livros</span>
                         </a>
                     </li>
-                    <li>
+                    <li class="nav-item">
                         <a href="{{ path('autor_index') }}" class="nav-link {{ rota starts with 'autor' ? 'active' : 'text-white' }}" data-sidebar-tooltip data-bs-title="Autores" {% if rota starts with 'autor' %}aria-current="page"{% endif %}>
                             <svg class="bi pe-none me-2" width="16" height="16" fill="currentColor"><use href="#people"/></svg>
                             <span class="sidebar-label">Autores</span>
                         </a>
                     </li>
-                    <li>
+                    <li class="nav-item">
                         <a href="{{ path('assunto_index') }}" class="nav-link {{ rota starts with 'assunto' ? 'active' : 'text-white' }}" data-sidebar-tooltip data-bs-title="Assuntos" {% if rota starts with 'assunto' %}aria-current="page"{% endif %}>
                             <svg class="bi pe-none me-2" width="16" height="16" fill="currentColor"><use href="#bookmark"/></svg>
                             <span class="sidebar-label">Assuntos</span>
@@ -68,7 +76,7 @@
                     </li>
                 </ul>
             </aside>
-            <main class="flex-grow-1 p-4">
+            <main class="main-content flex-grow-1 p-3 p-md-4">
                 {% for label, messages in app.flashes %}
                     {% for message in messages %}
                         <div class="alert alert-{{ label }}" role="alert">{{ message }}</div>
