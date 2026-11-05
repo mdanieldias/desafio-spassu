@@ -21,6 +21,13 @@
 .sidebar-toggle {
     background: transparent;
     border: 0;
+    line-height: 1;
+}
+
+.sidebar-toggle:hover,
+.sidebar-toggle:focus-visible {
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
 }
 
 .sidebar-chevron {
@@ -32,10 +39,18 @@ html.sidebar-collapsed .sidebar {
     padding: 0 !important;
 }
 
+/* Cabeçalho: marca em cima e botão logo abaixo, empilhados */
+html.sidebar-collapsed .sidebar-header {
+    flex-direction: column;
+    align-items: stretch !important;
+    margin: 0 !important;
+}
+
 html.sidebar-collapsed .sidebar-brand {
     justify-content: center;
     margin: 0 !important;
     padding: 1rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 html.sidebar-collapsed .sidebar-brand svg {
@@ -70,10 +85,6 @@ html.sidebar-collapsed .sidebar-toggle svg {
 
 html.sidebar-collapsed .sidebar-chevron {
     transform: rotate(180deg);
-}
-
-html.sidebar-collapsed .sidebar-footer {
-    border-top: 0 !important;
 }
 
 @media (max-width: 767.98px) {

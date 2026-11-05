@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>{% block title %}Cadastro de livros{% endblock %}</title>
+        <title>{% block title %}Livraria{% endblock %}</title>
         <script>
             try {
                 if (localStorage.getItem('sidebar-collapsed') === '1') {
@@ -37,37 +37,36 @@
         {% set rota = app.request.attributes.get('_route') %}
         <div class="d-flex flex-column flex-md-row min-vh-100">
             <aside class="sidebar d-flex flex-column flex-shrink-0 p-3 text-bg-dark" data-controller="sidebar">
-                <a href="{{ path('livro_index') }}" class="sidebar-brand d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none" title="Cadastro de livros">
-                    <svg class="bi pe-none me-2" width="32" height="32" fill="currentColor"><use href="#book"/></svg>
-                    <span class="sidebar-label fs-4">Cadastro de livros</span>
-                </a>
+                <div class="sidebar-header d-flex align-items-center mb-3">
+                    <a href="{{ path('livro_index') }}" class="sidebar-brand d-flex align-items-center me-auto text-white text-decoration-none" data-sidebar-tooltip data-bs-title="Livraria">
+                        <svg class="bi pe-none me-2" width="32" height="32" fill="currentColor"><use href="#book"/></svg>
+                        <span class="sidebar-label fs-4">Livraria</span>
+                    </a>
+                    <button type="button" class="sidebar-toggle btn btn-sm text-white" data-action="sidebar#toggle" data-sidebar-tooltip data-bs-title="Expandir menu" aria-expanded="true" aria-label="Recolher menu">
+                        <svg class="sidebar-chevron bi pe-none" width="16" height="16" fill="currentColor"><use href="#chevron-left"/></svg>
+                    </button>
+                </div>
                 <hr class="sidebar-divider">
                 <ul class="nav nav-pills nav-flush flex-column mb-auto">
                     <li class="nav-item">
-                        <a href="{{ path('livro_index') }}" class="nav-link {{ rota starts with 'livro' or rota == 'home' ? 'active' : 'text-white' }}" title="Livros" {% if rota starts with 'livro' or rota == 'home' %}aria-current="page"{% endif %}>
+                        <a href="{{ path('livro_index') }}" class="nav-link {{ rota starts with 'livro' or rota == 'home' ? 'active' : 'text-white' }}" data-sidebar-tooltip data-bs-title="Livros" {% if rota starts with 'livro' or rota == 'home' %}aria-current="page"{% endif %}>
                             <svg class="bi pe-none me-2" width="16" height="16" fill="currentColor"><use href="#book"/></svg>
                             <span class="sidebar-label">Livros</span>
                         </a>
                     </li>
                     <li>
-                        <a href="{{ path('autor_index') }}" class="nav-link {{ rota starts with 'autor' ? 'active' : 'text-white' }}" title="Autores" {% if rota starts with 'autor' %}aria-current="page"{% endif %}>
+                        <a href="{{ path('autor_index') }}" class="nav-link {{ rota starts with 'autor' ? 'active' : 'text-white' }}" data-sidebar-tooltip data-bs-title="Autores" {% if rota starts with 'autor' %}aria-current="page"{% endif %}>
                             <svg class="bi pe-none me-2" width="16" height="16" fill="currentColor"><use href="#people"/></svg>
                             <span class="sidebar-label">Autores</span>
                         </a>
                     </li>
                     <li>
-                        <a href="{{ path('assunto_index') }}" class="nav-link {{ rota starts with 'assunto' ? 'active' : 'text-white' }}" title="Assuntos" {% if rota starts with 'assunto' %}aria-current="page"{% endif %}>
+                        <a href="{{ path('assunto_index') }}" class="nav-link {{ rota starts with 'assunto' ? 'active' : 'text-white' }}" data-sidebar-tooltip data-bs-title="Assuntos" {% if rota starts with 'assunto' %}aria-current="page"{% endif %}>
                             <svg class="bi pe-none me-2" width="16" height="16" fill="currentColor"><use href="#bookmark"/></svg>
                             <span class="sidebar-label">Assuntos</span>
                         </a>
                     </li>
                 </ul>
-                <div class="sidebar-footer mt-auto border-top border-white border-opacity-25">
-                    <button type="button" class="sidebar-toggle nav-link text-white w-100 text-start" data-action="sidebar#toggle" aria-expanded="true" aria-label="Recolher menu">
-                        <svg class="sidebar-chevron bi pe-none me-2" width="16" height="16" fill="currentColor"><use href="#chevron-left"/></svg>
-                        <span class="sidebar-label">Recolher</span>
-                    </button>
-                </div>
             </aside>
             <main class="flex-grow-1 p-4">
                 {% for label, messages in app.flashes %}
