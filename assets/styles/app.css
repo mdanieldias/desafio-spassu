@@ -1,0 +1,93 @@
+.sidebar,
+.sidebar .nav-link,
+.sidebar .sidebar-brand,
+.sidebar .sidebar-toggle {
+    color: #fff;
+}
+
+.sidebar svg {
+    fill: currentColor;
+    color: inherit;
+}
+
+.sidebar {
+    width: 280px;
+    min-height: 100vh;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+}
+
+.sidebar-toggle {
+    background: transparent;
+    border: 0;
+}
+
+.sidebar-chevron {
+    transition: transform 0.15s ease;
+}
+
+html.sidebar-collapsed .sidebar {
+    width: 4.5rem;
+    padding: 0 !important;
+}
+
+html.sidebar-collapsed .sidebar-brand {
+    justify-content: center;
+    margin: 0 !important;
+    padding: 1rem 0;
+}
+
+html.sidebar-collapsed .sidebar-brand svg {
+    width: 32px;
+    height: 32px;
+    margin: 0 !important;
+}
+
+html.sidebar-collapsed .sidebar-label,
+html.sidebar-collapsed .sidebar-divider {
+    display: none;
+}
+
+html.sidebar-collapsed .sidebar .nav-link,
+html.sidebar-collapsed .sidebar-toggle {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    border-radius: 0;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+html.sidebar-collapsed .sidebar .nav-link svg,
+html.sidebar-collapsed .sidebar-toggle svg {
+    width: 24px;
+    height: 24px;
+    margin: 0 !important;
+}
+
+html.sidebar-collapsed .sidebar-chevron {
+    transform: rotate(180deg);
+}
+
+html.sidebar-collapsed .sidebar-footer {
+    border-top: 0 !important;
+}
+
+@media (max-width: 767.98px) {
+    .sidebar:not(.is-collapsed) {
+        width: 100%;
+        height: auto;
+        min-height: 0;
+        position: static;
+    }
+
+    html.sidebar-collapsed .sidebar {
+        width: 100%;
+        height: auto;
+        min-height: 0;
+        position: static;
+    }
+}
