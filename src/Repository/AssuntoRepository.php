@@ -15,4 +15,15 @@ class AssuntoRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Assunto::class);
     }
+
+    /** Compara sem diferenciar maiúsculas, para não cadastrar o mesmo assunto duas vezes. */
+    public function buscarPorDescricao(string $descricao): ?Assunto
+    {
+        return $this->createQueryBuilder('a')
+            ->where('LOWER(a.descricao) = LOWER(:descricao)')
+            ->setParameter('descricao', $descricao)
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
 }

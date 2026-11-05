@@ -11,6 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: AssuntoRepository::class)]
 #[ORM\Table(name: 'assunto')]
+#[ORM\UniqueConstraint(name: 'uq_assunto_descricao', columns: ['descricao'])]
 class Assunto
 {
     #[ORM\Id]

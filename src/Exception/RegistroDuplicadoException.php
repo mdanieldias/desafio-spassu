@@ -14,4 +14,13 @@ final class RegistroDuplicadoException extends RegraDeNegocioException
             $previous,
         );
     }
+
+    public static function assunto(string $descricao, ?\Throwable $previous = null): self
+    {
+        return new self(
+            sprintf('Já existe o assunto "%s".', $descricao),
+            0,
+            $previous,
+        );
+    }
 }

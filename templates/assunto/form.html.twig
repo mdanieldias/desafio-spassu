@@ -1,0 +1,15 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ titulo }}{% endblock %}
+
+{% block body %}
+    <h1 class="h3 mb-3">{{ titulo }}</h1>
+
+    {{ form_start(form) }}
+        {{ form_row(form.descricao) }}
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary">Salvar</button>
+            <a class="btn btn-outline-secondary" href="{{ path('assunto_index') }}">Cancelar</a>
+        </div>
+    {{ form_end(form) }}
+{% endblock %}
