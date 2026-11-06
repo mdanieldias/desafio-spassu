@@ -28,6 +28,16 @@ docker compose exec php bin/console doctrine:migrations:migrate -n
 
 O Node sobe por último porque o `package.json` aponta para `vendor/symfony/ux-live-component`, que só existe depois do `composer install`. O `chmod` é necessário porque o Composer cria `var/cache` como root e o PHP-FPM não consegue gravar nele. Sem rota cadastrada, essa URL responde 404 do Symfony.
 
+## Dados de demonstração
+
+A massa fica em `src/DataFixtures/AppFixtures.php`. Um arquivo só, porque autores, assuntos e livros formam um conjunto: o livro precisa do autor e do assunto já gravados no mesmo `load()`.
+
+```bash
+docker compose exec php bin/console doctrine:fixtures:load -n
+```
+
+Esse comando apaga os registros atuais do banco e carrega a fixture de novo. A suíte de testes não usa essa massa: cada teste funcional cria e desfaz os próprios dados.
+
 ## Como testar
 
 ```bash
