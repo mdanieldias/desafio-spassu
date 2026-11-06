@@ -87,7 +87,7 @@ final class AssuntoController extends AbstractController
     public function excluir(int $id, Request $request, AssuntoService $assuntos): Response
     {
         if (!$this->isCsrfTokenValid('assunto_excluir', $request->request->getString('_token'))) {
-            throw $this->createAccessDeniedException('Token de segurança inválido.');
+            return new Response('Token de segurança inválido.', Response::HTTP_FORBIDDEN);
         }
 
         try {

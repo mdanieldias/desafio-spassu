@@ -9,6 +9,10 @@ services:
       - .:/var/www/html
     environment:
       DATABASE_URL: "postgresql://app:app@db:5432/livros?serverVersion=16&charset=utf8"
+      # O código montado pertence ao usuário do host; o Git do container recusa o repositório sem isso.
+      GIT_CONFIG_COUNT: "1"
+      GIT_CONFIG_KEY_0: safe.directory
+      GIT_CONFIG_VALUE_0: /var/www/html
     depends_on:
       db:
         condition: service_healthy

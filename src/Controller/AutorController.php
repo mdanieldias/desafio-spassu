@@ -81,7 +81,7 @@ final class AutorController extends AbstractController
     public function excluir(int $id, Request $request, AutorService $autores): Response
     {
         if (!$this->isCsrfTokenValid('autor_excluir', $request->request->getString('_token'))) {
-            throw $this->createAccessDeniedException('Token de segurança inválido.');
+            return new Response('Token de segurança inválido.', Response::HTTP_FORBIDDEN);
         }
 
         try {

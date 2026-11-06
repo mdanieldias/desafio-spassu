@@ -91,7 +91,7 @@ final class LivroController extends AbstractController
     public function excluir(int $id, Request $request, LivroService $livros): Response
     {
         if (!$this->isCsrfTokenValid('livro_excluir', $request->request->getString('_token'))) {
-            throw $this->createAccessDeniedException('Token de segurança inválido.');
+            return new Response('Token de segurança inválido.', Response::HTTP_FORBIDDEN);
         }
 
         try {

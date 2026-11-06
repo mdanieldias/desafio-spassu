@@ -31,10 +31,12 @@ O Node sobe por último porque o `package.json` aponta para `vendor/symfony/ux-l
 ## Como testar
 
 ```bash
-docker compose exec php composer test:unit     # unitários, sem banco
+docker compose exec php php bin/console doctrine:database:create --env=test --if-not-exists
+docker compose exec php php bin/console doctrine:migrations:migrate -n --env=test
+docker compose exec php composer test
 ```
 
-`composer test` inclui `tests/Functional`, pasta que ainda não existe, e o PHPUnit está com `failOnWarning`. Esse comando passa a valer quando a suíte funcional existir.
+`composer test:unit` roda só os unitários, sem banco. `composer test` inclui a suíte funcional, que usa o banco `livros_test` e desfaz cada teste.
 
 ## Modelo de dados
 
