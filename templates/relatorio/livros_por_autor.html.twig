@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+    <head>
+        <meta charset="UTF-8">
+        <title>Livros por autor</title>
+        <style>
+            body { font-family: DejaVu Sans, sans-serif; font-size: 11px; color: #212529; }
+            h1 { font-size: 18px; margin: 0 0 4px; }
+            .meta { color: #6c757d; margin: 0 0 16px; }
+            h2 { font-size: 13px; margin: 16px 0 6px; }
+            table { width: 100%; border-collapse: collapse; }
+            th, td { border: 1px solid #dee2e6; padding: 4px 6px; text-align: left; vertical-align: top; }
+            th { background: #f8f9fa; }
+            .vazio { color: #6c757d; margin: 0; }
+        </style>
+    </head>
+    <body>
+        <h1>Livros por autor</h1>
+        <p class="meta">Gerado em {{ geradoEm|date('d/m/Y H:i') }}</p>
+
+        {% if autores is empty %}
+            <p class="vazio">Nenhum autor cadastrado.</p>
+        {% else %}
+            {% for autor in autores %}
+                <h2>{{ autor.nome }}</h2>
+                {% if autor.livros is empty %}
+                    <p class="vazio">Nenhum livro cadastrado.</p>
+                {% else %}
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Título</th>
+                                <th>Editora</th>
+                                <th>Edição</th>
+                                <th>Ano</th>
+                                <th>Valor</th>
+                                <th>Assuntos</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for livro in autor.livros %}
+                                <tr>
+                                    <td>{{ livro.titulo }}</td>
+                                    <td>{{ livro.editora }}</td>
+                                    <td>{{ livro.edicao }}</td>
+                                    <td>{{ livro.anoPublicacao }}</td>
+                                    <td>R$ {{ livro.valor|number_format(2, ',', '.') }}</td>
+                                    <td>{{ livro.assuntos != '' ? livro.assuntos : '—' }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+    </body>
+</html>

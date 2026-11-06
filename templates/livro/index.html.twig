@@ -5,7 +5,10 @@
 {% block body %}
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h1 class="h3 mb-0">Livros</h1>
-        <a class="btn btn-primary" href="{{ path('livro_novo') }}">Novo livro</a>
+        <div class="d-flex gap-2">
+            <a class="btn btn-outline-secondary" href="{{ path('relatorio_livros') }}" target="_blank" rel="noopener">Relatório</a>
+            <a class="btn btn-primary" href="{{ path('livro_novo') }}">Novo livro</a>
+        </div>
     </div>
 
     {{ component('BuscaLivros') }}

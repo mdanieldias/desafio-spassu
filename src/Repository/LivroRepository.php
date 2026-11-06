@@ -39,4 +39,28 @@ class LivroRepository extends ServiceEntityRepository
 
         return $qb->getQuery()->getResult();
     }
+
+    /**
+     * Linhas da view vw_livros_por_autor, já ordenadas por autor e título.
+     * Autor sem livro volta com livro_id nulo.
+     *
+     * @return list<array<string, mixed>>
+     */
+    public function listarParaRelatorio(): array
+    {
+        return $this->getEntityManager()->getConnection()->fetchAllAssociative(<<<'SQL'
+            SELECT
+                autor_id,
+                autor_nome,
+                livro_id,
+                titulo,
+                editora,
+                edicao,
+                ano_publicacao,
+                valor,
+                assuntos
+            FROM vw_livros_por_autor
+            ORDER BY autor_nome, titulo NULLS LAST
+            SQL);
+    }
 }
