@@ -8,7 +8,7 @@
         <a class="btn btn-primary" href="{{ path('assunto_novo') }}">Novo assunto</a>
     </div>
 
-    {% if assuntos is empty %}
+    {% if pagina.total == 0 %}
         <p class="text-secondary mb-0">Nenhum assunto cadastrado.</p>
     {% else %}
         <div class="table-responsive">
@@ -20,7 +20,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for assunto in assuntos %}
+                    {% for assunto in pagina.itens %}
                         <tr>
                             <td>{{ assunto.descricao }}</td>
                             <td class="text-end">
@@ -35,5 +35,10 @@
                 </tbody>
             </table>
         </div>
+        {{ component('Paginacao', {
+            numero: pagina.numero,
+            totalPaginas: pagina.totalDePaginas(),
+            rota: 'assunto_index',
+        }) }}
     {% endif %}
 {% endblock %}

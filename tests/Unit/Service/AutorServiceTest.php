@@ -9,6 +9,7 @@ use App\Entity\Autor;
 use App\Entity\Livro;
 use App\Exception\RegistroEmUsoException;
 use App\Exception\RegistroNaoEncontradoException;
+use App\Repository\AutorRepository;
 use App\Service\AutorService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\DBAL\Driver\Exception as DriverException;
@@ -25,7 +26,7 @@ final class AutorServiceTest extends TestCase
     protected function setUp(): void
     {
         $this->em = $this->createMock(EntityManagerInterface::class);
-        $this->service = new AutorService($this->em);
+        $this->service = new AutorService($this->em, $this->createStub(AutorRepository::class));
     }
 
     public function testCriarPersisteOAutorComONomeDoDto(): void

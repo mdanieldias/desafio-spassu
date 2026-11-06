@@ -36,13 +36,13 @@ final class LivroControllerTest extends FunctionalTestCase
         $client = static::createClient();
         $autorId = $this->criarAutor($client, 'Editor de Livro');
         $this->enviar($client, '/livros/novo', 'Salvar', $this->dados($autorId, 'Titulo Original', '1900'));
-        $crawler = $client->followRedirect();
-        $id = $this->idNaListagem($crawler, 'Titulo Original', '#/livros/(\d+)/editar#');
+        $client->followRedirect();
+        $id = $this->idNaListagem($client, 'Titulo Original', '#/livros/(\d+)/editar#');
 
         $this->enviar($client, '/livros/'.$id.'/editar', 'Salvar', $this->dados($autorId, 'Titulo Novo', '1900'));
         self::assertResponseRedirects('/livros');
-        $crawler = $client->followRedirect();
-        self::assertSelectorTextContains('body', 'Titulo Novo');
+        $client->followRedirect();
+        $crawler = $this->paginaComTexto($client, 'Titulo Novo');
         self::assertStringNotContainsString('Titulo Original', (string) $client->getResponse()->getContent());
 
         $linha = $crawler->filterXPath('//tr[td[contains(normalize-space(.), "Titulo Novo")]]');
@@ -87,8 +87,8 @@ final class LivroControllerTest extends FunctionalTestCase
     private function criarAutor(\Symfony\Bundle\FrameworkBundle\KernelBrowser $client, string $nome): int
     {
         $this->enviar($client, '/autores/novo', 'Salvar', ['autor[nome]' => $nome]);
-        $crawler = $client->followRedirect();
+        $client->followRedirect();
 
-        return $this->idNaListagem($crawler, $nome, '#/autores/(\d+)/editar#');
+        return $this->idNaListagem($client, $nome, '#/autores/(\d+)/editar#');
     }
 }

@@ -14,9 +14,9 @@ final class AssuntoControllerTest extends FunctionalTestCase
             'assunto[descricao]' => 'Ficcao',
         ]);
         self::assertResponseRedirects('/assuntos');
-        $crawler = $client->followRedirect();
+        $client->followRedirect();
         self::assertSelectorTextContains('.alert-success', 'Assunto cadastrado.');
-        $id = $this->idNaListagem($crawler, 'Ficcao', '#/assuntos/(\d+)/editar#');
+        $id = $this->idNaListagem($client, 'Ficcao', '#/assuntos/(\d+)/editar#');
 
         $this->enviar($client, '/assuntos/novo', 'Salvar', [
             'assunto[descricao]' => 'ficcao',
@@ -25,17 +25,18 @@ final class AssuntoControllerTest extends FunctionalTestCase
         self::assertSelectorTextContains('.alert-danger', 'Já existe o assunto "Ficcao"');
 
         $this->enviar($client, '/assuntos/'.$id.'/editar', 'Salvar', [
-            'assunto[descricao]' => 'Poesia',
+            'assunto[descricao]' => 'Haicai',
         ]);
         self::assertResponseRedirects('/assuntos');
-        $crawler = $client->followRedirect();
-        self::assertSelectorTextContains('body', 'Poesia');
+        $client->followRedirect();
+        $crawler = $this->paginaComTexto($client, 'Haicai');
+        $linha = $crawler->filterXPath('//tr[td[contains(normalize-space(.), "Haicai")]]');
 
-        $client->submit($crawler->selectButton('Excluir')->form());
+        $client->submit($linha->selectButton('Excluir')->form());
         self::assertResponseRedirects('/assuntos');
         $client->followRedirect();
         self::assertSelectorTextContains('.alert-success', 'Assunto excluído.');
-        self::assertStringNotContainsString('Poesia', (string) $client->getResponse()->getContent());
+        self::assertStringNotContainsString('Haicai', (string) $client->getResponse()->getContent());
     }
 
     public function testNaoExcluiAssuntoVinculadoALivro(): void
@@ -58,17 +59,17 @@ final class AssuntoControllerTest extends FunctionalTestCase
     private function criarAutor(\Symfony\Bundle\FrameworkBundle\KernelBrowser $client, string $nome): int
     {
         $this->enviar($client, '/autores/novo', 'Salvar', ['autor[nome]' => $nome]);
-        $crawler = $client->followRedirect();
+        $client->followRedirect();
 
-        return $this->idNaListagem($crawler, $nome, '#/autores/(\d+)/editar#');
+        return $this->idNaListagem($client, $nome, '#/autores/(\d+)/editar#');
     }
 
     private function criarAssunto(\Symfony\Bundle\FrameworkBundle\KernelBrowser $client, string $descricao): int
     {
         $this->enviar($client, '/assuntos/novo', 'Salvar', ['assunto[descricao]' => $descricao]);
-        $crawler = $client->followRedirect();
+        $client->followRedirect();
 
-        return $this->idNaListagem($crawler, $descricao, '#/assuntos/(\d+)/editar#');
+        return $this->idNaListagem($client, $descricao, '#/assuntos/(\d+)/editar#');
     }
 
     private function criarLivro(\Symfony\Bundle\FrameworkBundle\KernelBrowser $client, int $autorId, int $assuntoId, string $titulo): void

@@ -7,6 +7,7 @@ namespace App\Tests\Unit\Service;
 use App\Dto\LivroDto;
 use App\Entity\Autor;
 use App\Entity\Livro;
+use App\Model\Pagina;
 use App\Exception\RegistroDuplicadoException;
 use App\Exception\RegistroNaoEncontradoException;
 use App\Repository\LivroRepository;
@@ -154,9 +155,10 @@ final class LivroServiceTest extends TestCase
     public function testListarDelegaABuscaDoRepositorio(): void
     {
         $this->em->expects(self::never())->method('flush');
-        $this->livros->expects(self::once())->method('buscarPorTermo')->with('dom')->willReturn([]);
+        $pagina = new Pagina([], 1, 0);
+        $this->livros->expects(self::once())->method('buscarPorTermo')->with('dom', 1)->willReturn($pagina);
 
-        self::assertSame([], $this->service->listar('dom'));
+        self::assertSame($pagina, $this->service->listar('dom'));
     }
 
     public function testExcluirRemoveOLivro(): void

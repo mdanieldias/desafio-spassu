@@ -1,0 +1,27 @@
+{% props numero, totalPaginas, rota, parametros = {} %}
+
+{% if totalPaginas > 1 %}
+    <nav class="mt-3" aria-label="Paginação">
+        <ul class="pagination justify-content-center mb-0">
+            <li class="page-item{{ numero <= 1 ? ' disabled' : '' }}">
+                {% if numero <= 1 %}
+                    <span class="page-link">Anterior</span>
+                {% else %}
+                    <a class="page-link" rel="prev" href="{{ path(rota, parametros|merge({pagina: numero - 1})) }}">Anterior</a>
+                {% endif %}
+            </li>
+            {% for n in 1..totalPaginas %}
+                <li class="page-item{{ n == numero ? ' active' : '' }}">
+                    <a class="page-link" href="{{ path(rota, parametros|merge({pagina: n})) }}" {% if n == numero %}aria-current="page"{% endif %}>{{ n }}</a>
+                </li>
+            {% endfor %}
+            <li class="page-item{{ numero >= totalPaginas ? ' disabled' : '' }}">
+                {% if numero >= totalPaginas %}
+                    <span class="page-link">Próxima</span>
+                {% else %}
+                    <a class="page-link" rel="next" href="{{ path(rota, parametros|merge({pagina: numero + 1})) }}">Próxima</a>
+                {% endif %}
+            </li>
+        </ul>
+    </nav>
+{% endif %}

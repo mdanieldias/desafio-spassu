@@ -11,8 +11,8 @@
         >
     </div>
 
-    {% set encontrados = this.livros() %}
-    {% if encontrados is empty %}
+    {% set resultado = this.livros() %}
+    {% if resultado.total == 0 %}
         <p class="text-secondary mb-0">
             {{ termo is empty ? 'Nenhum livro cadastrado.' : 'Nenhum livro encontrado.' }}
         </p>
@@ -32,7 +32,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for livro in encontrados %}
+                    {% for livro in resultado.itens %}
                         <tr>
                             <td>{{ livro.titulo }}</td>
                             <td>{{ livro.editora }}</td>
@@ -53,5 +53,11 @@
                 </tbody>
             </table>
         </div>
+        {{ component('Paginacao', {
+            numero: resultado.numero,
+            totalPaginas: resultado.totalDePaginas(),
+            rota: 'livro_index',
+            parametros: termo is not empty ? {termo: termo} : {},
+        }) }}
     {% endif %}
 </div>

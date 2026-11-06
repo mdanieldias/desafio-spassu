@@ -8,7 +8,7 @@
         <a class="btn btn-primary" href="{{ path('autor_novo') }}">Novo autor</a>
     </div>
 
-    {% if autores is empty %}
+    {% if pagina.total == 0 %}
         <p class="text-secondary mb-0">Nenhum autor cadastrado.</p>
     {% else %}
         <div class="table-responsive">
@@ -20,7 +20,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for autor in autores %}
+                    {% for autor in pagina.itens %}
                         <tr>
                             <td>{{ autor.nome }}</td>
                             <td class="text-end">
@@ -35,5 +35,10 @@
                 </tbody>
             </table>
         </div>
+        {{ component('Paginacao', {
+            numero: pagina.numero,
+            totalPaginas: pagina.totalDePaginas(),
+            rota: 'autor_index',
+        }) }}
     {% endif %}
 {% endblock %}

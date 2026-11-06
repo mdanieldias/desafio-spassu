@@ -4,15 +4,19 @@ declare(strict_types=1);
 
 namespace App\Repository;
 
+use App\Doctrine\Paginador;
 use App\Entity\Livro;
+use App\Model\Pagina;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /** @extends ServiceEntityRepository<Livro> */
 class LivroRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
-    {
+    public function __construct(
+        ManagerRegistry $registry,
+        private readonly Paginador $paginador,
+    ) {
         parent::__construct($registry, Livro::class);
     }
 
@@ -27,17 +31,19 @@ class LivroRepository extends ServiceEntityRepository
         return $livro instanceof Livro ? $livro : null;
     }
 
-    /** @return list<Livro> */
-    public function buscarPorTermo(?string $termo): array
+    /** @return Pagina<Livro> */
+    public function buscarPorTermo(?string $termo, int $pagina = 1): Pagina
     {
-        $qb = $this->createQueryBuilder('l')->orderBy('l.titulo', 'ASC');
+        $qb = $this->createQueryBuilder('l')
+            ->orderBy('l.titulo', 'ASC')
+            ->addOrderBy('l.edicao', 'ASC');
 
         if ($termo !== null && trim($termo) !== '') {
             $qb->andWhere('LOWER(l.titulo) LIKE :termo OR LOWER(l.editora) LIKE :termo')
                 ->setParameter('termo', '%' . mb_strtolower(trim($termo)) . '%');
         }
 
-        return $qb->getQuery()->getResult();
+        return $this->paginador->paginar($qb->getQuery(), $pagina);
     }
 
     /**

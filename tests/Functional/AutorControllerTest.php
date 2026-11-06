@@ -14,9 +14,9 @@ final class AutorControllerTest extends FunctionalTestCase
             'autor[nome]' => 'Autor Funcional',
         ]);
         self::assertResponseRedirects('/autores');
-        $crawler = $client->followRedirect();
+        $client->followRedirect();
         self::assertSelectorTextContains('.alert-success', 'Autor cadastrado.');
-        $id = $this->idNaListagem($crawler, 'Autor Funcional', '#/autores/(\d+)/editar#');
+        $id = $this->idNaListagem($client, 'Autor Funcional', '#/autores/(\d+)/editar#');
 
         $this->enviar($client, '/autores/'.$id.'/editar', 'Salvar', [
             'autor[nome]' => 'Autor Editado',
@@ -64,9 +64,9 @@ final class AutorControllerTest extends FunctionalTestCase
         $this->enviar($client, '/autores/novo', 'Salvar', [
             'autor[nome]' => $nome,
         ]);
-        $crawler = $client->followRedirect();
+        $client->followRedirect();
 
-        return $this->idNaListagem($crawler, $nome, '#/autores/(\d+)/editar#');
+        return $this->idNaListagem($client, $nome, '#/autores/(\d+)/editar#');
     }
 
     private function criarLivro(\Symfony\Bundle\FrameworkBundle\KernelBrowser $client, int $autorId, string $titulo): void

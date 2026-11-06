@@ -8,6 +8,8 @@ use App\Dto\AutorDto;
 use App\Entity\Autor;
 use App\Exception\RegistroEmUsoException;
 use App\Exception\RegistroNaoEncontradoException;
+use App\Model\Pagina;
+use App\Repository\AutorRepository;
 use Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -17,8 +19,10 @@ use Doctrine\ORM\EntityManagerInterface;
  */
 final class AutorService
 {
-    public function __construct(private readonly EntityManagerInterface $em)
-    {
+    public function __construct(
+        private readonly EntityManagerInterface $em,
+        private readonly AutorRepository $autores,
+    ) {
     }
 
     public function criar(AutorDto $dto): Autor
@@ -63,10 +67,10 @@ final class AutorService
             ?? throw RegistroNaoEncontradoException::autor($id);
     }
 
-    /** @return list<Autor> */
-    public function listar(): array
+    /** @return Pagina<Autor> */
+    public function listar(int $pagina = 1): Pagina
     {
-        return $this->em->getRepository(Autor::class)->findBy([], ['nome' => 'ASC']);
+        return $this->autores->listar($pagina);
     }
 
     private function nomeDe(AutorDto $dto): string

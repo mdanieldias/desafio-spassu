@@ -9,6 +9,7 @@ use App\Entity\Assunto;
 use App\Exception\RegistroDuplicadoException;
 use App\Exception\RegistroEmUsoException;
 use App\Exception\RegistroNaoEncontradoException;
+use App\Model\Pagina;
 use App\Repository\AssuntoRepository;
 use Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
@@ -73,10 +74,10 @@ final class AssuntoService
             ?? throw RegistroNaoEncontradoException::assunto($id);
     }
 
-    /** @return list<Assunto> */
-    public function listar(): array
+    /** @return Pagina<Assunto> */
+    public function listar(int $pagina = 1): Pagina
     {
-        return $this->assuntos->findBy([], ['descricao' => 'ASC']);
+        return $this->assuntos->listar($pagina);
     }
 
     private function garantirUnico(string $descricao, ?int $ignorarId = null): void

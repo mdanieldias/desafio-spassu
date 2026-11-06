@@ -8,6 +8,7 @@ use App\Dto\LivroDto;
 use App\Entity\Livro;
 use App\Exception\RegistroDuplicadoException;
 use App\Exception\RegistroNaoEncontradoException;
+use App\Model\Pagina;
 use App\Repository\LivroRepository;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
@@ -69,10 +70,10 @@ final class LivroService
         return $livro;
     }
 
-    /** @return list<Livro> */
-    public function listar(?string $termo = null): array
+    /** @return Pagina<Livro> */
+    public function listar(?string $termo = null, int $pagina = 1): Pagina
     {
-        return $this->livros->buscarPorTermo($termo);
+        return $this->livros->buscarPorTermo($termo, $pagina);
     }
 
     public function excluir(int $id): void

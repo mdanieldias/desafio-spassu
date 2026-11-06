@@ -17,10 +17,10 @@ use Symfony\Component\Routing\Attribute\Route;
 final class AssuntoController extends AbstractController
 {
     #[Route('/assuntos', name: 'assunto_index', methods: ['GET'])]
-    public function index(AssuntoService $assuntos): Response
+    public function index(Request $request, AssuntoService $assuntos): Response
     {
         return $this->render('assunto/index.html.twig', [
-            'assuntos' => $assuntos->listar(),
+            'pagina' => $assuntos->listar($request->query->getInt('pagina', 1)),
         ]);
     }
 

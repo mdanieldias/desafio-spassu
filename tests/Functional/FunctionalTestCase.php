@@ -25,15 +25,39 @@ abstract class FunctionalTestCase extends WebTestCase
         return $client->getCrawler();
     }
 
-    protected function idNaListagem(Crawler $crawler, string $texto, string $padrao): int
+    protected function idNaListagem(KernelBrowser $client, string $texto, string $padrao): int
     {
-        $linha = $crawler->filterXPath(sprintf('//tr[td[contains(normalize-space(.), "%s")]]', $texto));
-        self::assertGreaterThan(0, $linha->count(), sprintf('Não achei "%s" na listagem.', $texto));
-
+        $linha = $this->paginaComTexto($client, $texto)->filterXPath($this->xpathDaLinha($texto));
         $href = (string) $linha->filter('a')->first()->attr('href');
         self::assertSame(1, preg_match($padrao, $href, $encontrado), $href);
 
         return (int) $encontrado[1];
+    }
+
+    protected function paginaComTexto(KernelBrowser $client, string $texto): Crawler
+    {
+        $crawler = $client->getCrawler();
+
+        for ($i = 0; $i < 30; ++$i) {
+            $linha = $crawler->filterXPath($this->xpathDaLinha($texto));
+            if ($linha->count() > 0) {
+                return $crawler;
+            }
+
+            $proxima = $crawler->filter('nav[aria-label="Paginação"] a[rel="next"]');
+            if ($proxima->count() === 0) {
+                break;
+            }
+
+            $crawler = $client->request('GET', (string) $proxima->attr('href'));
+        }
+
+        self::fail(sprintf('Não achei "%s" na listagem.', $texto));
+    }
+
+    private function xpathDaLinha(string $texto): string
+    {
+        return sprintf('//tr[td[contains(normalize-space(.), "%s")]]', $texto);
     }
 
     /** @param array<string, mixed> $valores */
