@@ -15,7 +15,11 @@ Desafio técnico: CRUD de **Livro**, **Autor** e **Assunto** com relatório agru
 | Testes         | PHPUnit 13                                       | TDD: unitários (service, DTO) e funcionais (controllers)                |
 | Infra          | Docker Compose (php-fpm, nginx, postgres, node)  | Sobe em etapas: PHP e banco, Composer, permissão do cache, depois o Node |
 
-## Como subir
+## Implementação local
+
+Na máquina bastam o Docker e o Docker Compose em execução. PHP 8.5, Composer, Node e PostgreSQL ficam nos containers. Os comandos abaixo rodam na raiz do repositório.
+
+### 1. Subir a aplicação
 
 ```bash
 docker compose up -d --build db php nginx
@@ -23,12 +27,28 @@ docker compose exec php composer install
 docker compose exec php sh -c 'mkdir -p var/cache var/log && chmod -R 777 var'
 docker compose up -d node
 docker compose exec php bin/console doctrine:migrations:migrate -n
-# app: http://localhost:8080
 ```
 
-O Node sobe por último porque o `package.json` aponta para `vendor/symfony/ux-live-component`, que só existe depois do `composer install`. O `chmod` é necessário porque o Composer cria `var/cache` como root e o PHP-FPM não consegue gravar nele. Sem rota cadastrada, essa URL responde 404 do Symfony.
+O código é montado em `/var/www/html` dentro do container `php`. O `composer install` e o `bin/console` rodam lá, não no PHP do host. O Node sobe por último porque o `package.json` aponta para `vendor/symfony/ux-live-component`, que só existe depois do Composer. O `chmod` é necessário porque o Composer cria `var/cache` como root e o PHP-FPM não consegue gravar nele.
 
-## Dados de demonstração
+O container `node` executa `npm install` e `npm run watch`, e publica o CSS e o JavaScript em `public/build`. Sem esse passo a página abre sem o estilo do Bootstrap.
+
+Abra http://localhost:8080. A raiz redireciona para `/livros`. Autores ficam em `/autores`, assuntos em `/assuntos` e o PDF em `/relatorio`.
+
+| Serviço | No host | Na rede do Compose |
+| --- | --- | --- |
+| Aplicação (nginx) | http://localhost:8080 | `nginx:80` |
+| PostgreSQL 16 | `localhost:5433` | `db:5432` |
+
+A porta 5433 no host evita conflito com um PostgreSQL local na 5432. Usuário, senha e banco: `app` / `app` / `livros`. O `DATABASE_URL` do serviço `php` no `docker-compose.yml` é o que a aplicação usa; ele aponta para `db:5432`.
+
+O segredo de desenvolvimento está em `.env.dev`. O `.env` deixa `APP_SECRET` vazio no bloco do Flex, e o Symfony carrega o valor de `.env.dev` em seguida. Nada disso precisa ser editado para rodar localmente.
+
+Os dados do Postgres ficam no volume `db_data`. `docker compose down` para os containers e mantém o banco. `docker compose down -v` apaga o volume: depois é preciso rodar as migrations de novo.
+
+Se a 8080 ou a 5433 já estiver ocupada, troque só o lado do host em `docker-compose.yml` (`"8080:80"` e `"5433:5432"`).
+
+### 2. Dados de demonstração
 
 A massa fica em `src/DataFixtures/AppFixtures.php`. Um arquivo só, porque autores, assuntos e livros formam um conjunto: o livro precisa do autor e do assunto já gravados no mesmo `load()`.
 
@@ -36,9 +56,11 @@ A massa fica em `src/DataFixtures/AppFixtures.php`. Um arquivo só, porque autor
 docker compose exec php bin/console doctrine:fixtures:load -n
 ```
 
-Esse comando apaga os registros atuais do banco e carrega a fixture de novo. A suíte de testes não usa essa massa: cada teste funcional cria e desfaz os próprios dados.
+Esse comando apaga os registros atuais do banco e carrega a fixture de novo. A listagem mostra 10 registros por página. A suíte de testes não usa essa massa: cada teste funcional cria e desfaz os próprios dados.
 
-## Como testar
+### 3. Testes
+
+O banco de teste é outro: `livros_test`, no mesmo PostgreSQL. Crie-o uma vez e rode a suíte dentro do container:
 
 ```bash
 docker compose exec php php bin/console doctrine:database:create --env=test --if-not-exists
@@ -46,7 +68,18 @@ docker compose exec php php bin/console doctrine:migrations:migrate -n --env=tes
 docker compose exec php composer test
 ```
 
-`composer test:unit` roda só os unitários, sem banco. `composer test` inclui a suíte funcional, que usa o banco `livros_test` e desfaz cada teste.
+`composer test:unit` roda só os unitários, sem banco. `composer test` inclui a suíte funcional, que desfaz cada teste.
+
+### Dia a dia
+
+Qualquer comando Symfony segue o mesmo caminho, porque o PHP está no container:
+
+```bash
+docker compose exec php bin/console <comando>
+docker compose exec php composer <comando>
+```
+
+O `npm run watch` do container `node` recompila o front quando um arquivo em `assets/` muda. Para ver o log: `docker compose logs -f node`.
 
 ## Modelo de dados
 
